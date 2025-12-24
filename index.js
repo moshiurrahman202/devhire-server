@@ -26,6 +26,7 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
     const jobcollection = client.db("devhire").collection("jobs")
+    const applicationcollection = client.db("devhire").collection("applications")
     // api for jobs
     app.get("/jobs", async(req, res) => {
       const cursor = jobcollection.find();
@@ -38,6 +39,12 @@ async function run() {
       const query = {_id: new ObjectId(id)};
       const result = await jobcollection.findOne(query);
       res.send(result)
+    })
+    // job application apis
+    app.post("/applications", async (req, res) => {
+      const application = req.body;
+      const result = await applicationcollection.insertOne(application);
+      res.send(result);
     })
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
