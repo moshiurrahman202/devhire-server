@@ -47,6 +47,15 @@ async function run() {
         applicant: email
       }
       const result = await applicationcollection.find(query).toArray();
+      // bad way to aggregate data
+      for(const application of result) {
+        const jobId = application.jobId;
+        const jobQuery = {_id: new ObjectId(jobId)};
+        const job = await jobcollection.findOne(jobQuery);
+        application.company = job.company;
+        application.title = job.title;
+        application.company_logo = job.company_logo;
+      }
       res.send(result);
     })
     app.post("/applications", async (req, res) => {
