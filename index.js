@@ -29,7 +29,12 @@ async function run() {
     const applicationcollection = client.db("devhire").collection("applications")
     // api for jobs
     app.get("/jobs", async(req, res) => {
-      const cursor = jobcollection.find();
+      const email = req.query.email;
+      const query = {};
+      if(email){
+        query.hr_email = email;
+      }
+      const cursor = jobcollection.find(query);
       const result = await cursor.toArray();
       res.send(result)
     })
@@ -40,6 +45,14 @@ async function run() {
       const result = await jobcollection.findOne(query);
       res.send(result)
     })
+
+    // coude be done but should not be done.
+    // app.get("jobsbyemail", async (req, res) => {
+    //   const email = req.query.email;
+    //   const query = {hr_email: email};
+    //   const result = await jobcollection.find(query).toArray();
+    //   res.send(result)
+    // })
 
     app.post("/jobs",async (req, res) => {
       const newJob = req.body;
