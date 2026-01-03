@@ -46,6 +46,13 @@ async function run() {
       res.send(result)
     })
 
+    app.get("/applications/job/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = {jobId: id};
+      const result = await applicationcollection.find(query).toArray();
+      res.send(result)
+    })
+
     // coude be done but should not be done.
     // app.get("jobsbyemail", async (req, res) => {
     //   const email = req.query.email;
