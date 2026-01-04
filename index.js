@@ -34,9 +34,19 @@ async function run() {
       if(email){
         query.hr_email = email;
       }
-      const cursor = jobcollection.find(query);
-      const result = await cursor.toArray();
-      res.send(result)
+      const jobs = await jobcollection.find(query).toArray();
+      const jobsWithApplicationCount = await Promise.all(
+        jobs.map(async (job) => {
+          const count = await applicationcollection.countDocuments({
+            jobId: job._id.toString()
+          });
+          return {
+            ...job,
+            applicationCount: count
+          }
+        })
+      )
+      res.send(jobsWithApplicationCount)
     })
 
     app.get("/jobs/:id", async(req, res) => {
