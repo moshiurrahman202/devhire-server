@@ -1,14 +1,13 @@
 const express = require("express");
 const cors = require("cors")
 const app = express();
+const jwt = require("jsonwebtoken");
 const port = process.env.port || 3000;
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 // middleware
 app.use(cors());
 app.use(express.json());
-
-
 
 const uri = `mongodb+srv://${process.env.DB_ADMIN}:${process.env.DB_PASS}@cluster0.ppjooy5.mongodb.net/?appName=Cluster0`;
 
@@ -27,11 +26,19 @@ async function run() {
     await client.connect();
     const jobcollection = client.db("devhire").collection("jobs")
     const applicationcollection = client.db("devhire").collection("applications")
+
+    app.post("/jwt", async (req, res) => {
+      const { email } = req.body;
+      const user = { email };
+      const token = jwt.sign(user, "secret", { expiresIn: "1h" });
+      res.send(token)
+
+    })
     // api for jobs
-    app.get("/jobs", async(req, res) => {
+    app.get("/jobs", async (req, res) => {
       const email = req.query.email;
       const query = {};
-      if(email){
+      if (email) {
         query.hr_email = email;
       }
       const jobs = await jobcollection.find(query).toArray();
@@ -49,16 +56,16 @@ async function run() {
       res.send(jobsWithApplicationCount)
     })
 
-    app.get("/jobs/:id", async(req, res) => {
+    app.get("/jobs/:id", async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)};
+      const query = { _id: new ObjectId(id) };
       const result = await jobcollection.findOne(query);
       res.send(result)
     })
 
     app.get("/applications/job/:id", async (req, res) => {
       const id = req.params.id;
-      const query = {jobId: id};
+      const query = { jobId: id };
       const result = await applicationcollection.find(query).toArray();
       res.send(result)
     })
@@ -71,7 +78,7 @@ async function run() {
     //   res.send(result)
     // })
 
-    app.post("/jobs",async (req, res) => {
+    app.post("/jobs", async (req, res) => {
       const newJob = req.body;
       const result = await jobcollection.insertOne(newJob);
       res.send(result);
@@ -84,9 +91,9 @@ async function run() {
       }
       const result = await applicationcollection.find(query).toArray();
       // bad way to aggregate data
-      for(const application of result) {
+      for (const application of result) {
         const jobId = application.jobId;
-        const jobQuery = {_id: new ObjectId(jobId)};
+        const jobQuery = { _id: new ObjectId(jobId) };
         const job = await jobcollection.findOne(jobQuery);
         application.company = job.company;
         application.title = job.title;
@@ -100,20 +107,19 @@ async function run() {
       res.send(result);
     })
 
-    app.patch("/applications/:id", async(req, res) => {
+    app.patch("/applications/:id", async (req, res) => {
       const id = req.params.id;
       const update = req.body.status;
-      const filter = {_id: new ObjectId(id)};
+      const filter = { _id: new ObjectId(id) };
       const updateDoc = {
         $set: {
           status: update
         }
       }
-      const result = await applicationcollection.updateOne(filter,updateDoc);
+      const result = await applicationcollection.updateOne(filter, updateDoc);
       res.send(result)
 
     })
-
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
@@ -125,12 +131,11 @@ async function run() {
 }
 run().catch(console.dir);
 
-
 app.get("/", (req, res) => {
-    res.send("devhire is cooking!💥")
+  res.send("devhire is cooking!💥")
 });
 
 app.listen(port, () => {
-    console.log("server running port on ", port);
-    
+  console.log("server running port on ", port);
+
 })
