@@ -2,11 +2,15 @@ const express = require("express");
 const cors = require("cors")
 const app = express();
 const jwt = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
 const port = process.env.port || 3000;
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 // middleware
-app.use(cors());
+app.use(cors({
+  origin: ["http://localhost:5173"],
+  credentials: true
+}));
 app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_ADMIN}:${process.env.DB_PASS}@cluster0.ppjooy5.mongodb.net/?appName=Cluster0`;
@@ -28,10 +32,14 @@ async function run() {
     const applicationcollection = client.db("devhire").collection("applications")
 
     app.post("/jwt", async (req, res) => {
-      const { email } = req.body;
-      const user = { email };
-      const token = jwt.sign(user, "secret", { expiresIn: "1h" });
-      res.send(token)
+      const userData = req.body;
+      const token = jwt.sign(userData, process.env.JWT_ACCESS_SECRET, {expiresIn: "1d"})
+      res.cookie("token", token, {
+        httpOnly: true,
+        // if it is not production set secure false
+        secure: false
+      })
+      res.send({success: true})
 
     })
     // api for jobs
@@ -137,5 +145,7 @@ app.get("/", (req, res) => {
 
 app.listen(port, () => {
   console.log("server running port on ", port);
-
+  // const val = require("crypto").randomBytes(64).toString("hex");
+  // console.log("bytes => ", val);
 })
+
