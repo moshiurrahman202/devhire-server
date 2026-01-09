@@ -6,13 +6,20 @@ const cookieParser = require("cookie-parser");
 const port = process.env.port || 3000;
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
+
 // middleware
 app.use(cors({
   origin: ["http://localhost:5173"],
   credentials: true
 }));
 app.use(express.json());
+app.use(cookieParser());
 
+const verifayToken = (req, res, next) => {
+  console.log("in side the logger ❤", req.cookies.token);
+  next()
+  
+}
 const uri = `mongodb+srv://${process.env.DB_ADMIN}:${process.env.DB_PASS}@cluster0.ppjooy5.mongodb.net/?appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -33,7 +40,7 @@ async function run() {
 
     app.post("/jwt", async (req, res) => {
       const userData = req.body;
-      const token = jwt.sign(userData, process.env.JWT_ACCESS_SECRET, {expiresIn: "1d"})
+      const token = jwt.sign(userData, process.env.JWT_ACCESS_SECRET, {expiresIn: "3d"})
       res.cookie("token", token, {
         httpOnly: true,
         // if it is not production set secure false
@@ -43,8 +50,9 @@ async function run() {
 
     })
     // api for jobs
-    app.get("/jobs", async (req, res) => {
+    app.get("/jobs", verifayToken, async (req, res) => {
       const email = req.query.email;
+      // console.log("inside application cookies => ", req.cookies);
       const query = {};
       if (email) {
         query.hr_email = email;
@@ -94,6 +102,8 @@ async function run() {
     // api for applications
     app.get("/applications", async (req, res) => {
       const email = req.query.email;
+      // console.log("inside application cookies => ", req.cookies);
+      
       const query = {
         applicant: email
       }

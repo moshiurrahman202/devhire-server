@@ -10,6 +10,7 @@ set the cookies
         ex => axios.post("http://localhost:3000/jwt", userData, {
                     withCredentials: true
                 })
+        or for fetch option credentials: "include"
 
 5 => in the cors setting set credentials and origin
         ex => app.use(cors({
@@ -23,3 +24,7 @@ set the cookies
                      // if it is not production set secure false
                       secure: false
                   })
+
+7 => one time: use cookiesParser as middleware
+
+8 => every api i want to verify token: in the client side: if using axios withCredentials: true; and if use fetch credentials: include
