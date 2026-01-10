@@ -20,7 +20,7 @@ set the cookies
 
 6 => after generating the token sert it to the cookies with some options
             ex => res.cookie("token", token, {
-                     httpOnly: true,
+                     httpOnly: true, 
                      // if it is not production set secure false
                       secure: false
                   })
@@ -28,3 +28,10 @@ set the cookies
 7 => one time: use cookiesParser as middleware
 
 8 => every api i want to verify token: in the client side: if using axios withCredentials: true; and if use fetch credentials: include
+
+verifay token
+
+9 => check token exist, if not , return statsu 401 message unauthorized
+10 => jwt.verify , if err return status 403 message forbidden
+11 => if token valid set the decoded value to the req
+12 => whene user want data by api => check user information to cookies decoded informations. if dosen't match return status 422 message Validation error or(any status any message depend on xyz)

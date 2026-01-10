@@ -15,9 +15,19 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-const verifayToken = (req, res, next) => {
-  console.log("in side the logger ❤", req.cookies.token);
-  next()
+const verifyToken = (req, res, next) => {
+  // console.log("in side the logger ❤", req.cookies.token);
+  const token = req?.cookies?.token;
+  if(!token){
+    return res.status(401).send({message:"nauthrized"});
+  }
+  jwt.verify(token, process.env.JWT_ACCESS_SECRET,(err, decoded) => {
+    if(err){
+      return res.status(403).send({message: "forbidden"})
+    }
+    req.decoded = decoded;
+    next();
+  })
   
 }
 const uri = `mongodb+srv://${process.env.DB_ADMIN}:${process.env.DB_PASS}@cluster0.ppjooy5.mongodb.net/?appName=Cluster0`;
@@ -42,7 +52,7 @@ async function run() {
       const userData = req.body;
       const token = jwt.sign(userData, process.env.JWT_ACCESS_SECRET, {expiresIn: "3d"})
       res.cookie("token", token, {
-        httpOnly: true,
+        httpOnly: true,      
         // if it is not production set secure false
         secure: false
       })
@@ -50,7 +60,7 @@ async function run() {
 
     })
     // api for jobs
-    app.get("/jobs", verifayToken, async (req, res) => {
+    app.get("/jobs", async (req, res) => {
       const email = req.query.email;
       // console.log("inside application cookies => ", req.cookies);
       const query = {};
@@ -100,10 +110,12 @@ async function run() {
       res.send(result);
     })
     // api for applications
-    app.get("/applications", async (req, res) => {
+    app.get("/applications", verifyToken, async (req, res) => {
       const email = req.query.email;
       // console.log("inside application cookies => ", req.cookies);
-      
+      if(email !== req.decoded.email){
+        return res.status(422).send({message: "Validation error"})
+      }
       const query = {
         applicant: email
       }
