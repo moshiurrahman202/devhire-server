@@ -14,24 +14,43 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(cookieParser())
+// fire base admin key
+const admin = require("firebase-admin");
+const serviceAccount = require("./firebase-admin-key.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
 
 // verify token and cookies
 const verifytoken = (req, res, next) => {
   // console.log("this is verifytoken function => ", req.cookies);
   const token = req?.cookies?.token;
-  if(!token){
-    return res.status(401).send({message: "unauthorized"})
+  if (!token) {
+    return res.status(401).send({ message: "unauthorized" })
   }
   jwt.verify(token, process.env.JWT_ACCESS_SECRET, (err, decoded) => {
-    if(err){
-      return res.status(403).send({message: "forbidded"})
+    if (err) {
+      return res.status(403).send({ message: "forbidded" })
     }
     req.decoded = decoded;
     next()
   })
-  
-}
 
+}
+// firebase access token verifay
+const verifyFirebaseToken = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  const token = authHeader.split(" ")[1];
+  // console.log("token =>", token);
+  if (!token) {
+    return res.status(401).send({ message: "unauthorized access" })
+  }
+  const userInfo = await admin.auth().verifyIdToken(token)
+  // console.log("inside the token => ", userInfo);
+  req.authEmail = userInfo.email;
+  next()
+}
 const uri = `mongodb+srv://${process.env.DB_ADMIN}:${process.env.DB_PASS}@cluster0.ppjooy5.mongodb.net/?appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -52,18 +71,18 @@ async function run() {
 
     // cookies related api
     app.post("/jwt", async (req, res) => {
-      const {email} = req.body;
-      const token = jwt.sign({email}, process.env.JWT_ACCESS_SECRET,{
+      const { email } = req.body;
+      const token = jwt.sign({ email }, process.env.JWT_ACCESS_SECRET, {
         expiresIn: "1d"
       })
       // console.log("this is token => ", token);
-      
-      res.cookie("token",token, {
+
+      res.cookie("token", token, {
         httpOnly: true,
         // if it is not production set secure false
         secure: false
       })
-      res.send({seccess: true})
+      res.send({ seccess: true })
     })
 
     // api for jobs
@@ -117,10 +136,13 @@ async function run() {
       res.send(result);
     })
     // api for applications
-    app.get("/applications", verifytoken, async (req, res) => {
+    app.get("/applications", verifytoken, verifyFirebaseToken, async (req, res) => {
       const email = req.query.email;
-      if(email !== req.decoded.email){
-        return res.status(422).send({message: "validation error"})
+      if(email !== req.authEmail){
+        return res.status(422).send({ message: "validation error on firebase" })
+      }
+      if (email !== req.decoded.email) {
+        return res.status(422).send({ message: "validation error" })
       }
       const query = {
         applicant: email
