@@ -13,23 +13,25 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
-app.use(cookieParser());
+app.use(cookieParser())
 
-const verifyToken = (req, res, next) => {
-  // console.log("in side the logger ❤", req.cookies.token);
+// verify token and cookies
+const verifytoken = (req, res, next) => {
+  // console.log("this is verifytoken function => ", req.cookies);
   const token = req?.cookies?.token;
   if(!token){
-    return res.status(401).send({message:"nauthrized"});
+    return res.status(401).send({message: "unauthorized"})
   }
-  jwt.verify(token, process.env.JWT_ACCESS_SECRET,(err, decoded) => {
+  jwt.verify(token, process.env.JWT_ACCESS_SECRET, (err, decoded) => {
     if(err){
-      return res.status(403).send({message: "forbidden"})
+      return res.status(403).send({message: "forbidded"})
     }
     req.decoded = decoded;
-    next();
+    next()
   })
   
 }
+
 const uri = `mongodb+srv://${process.env.DB_ADMIN}:${process.env.DB_PASS}@cluster0.ppjooy5.mongodb.net/?appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -48,19 +50,24 @@ async function run() {
     const jobcollection = client.db("devhire").collection("jobs")
     const applicationcollection = client.db("devhire").collection("applications")
 
+    // cookies related api
     app.post("/jwt", async (req, res) => {
-      const userData = req.body;
-      const token = jwt.sign(userData, process.env.JWT_ACCESS_SECRET, {expiresIn: "3d"})
-      res.cookie("token", token, {
-        httpOnly: true,      
+      const {email} = req.body;
+      const token = jwt.sign({email}, process.env.JWT_ACCESS_SECRET,{
+        expiresIn: "1d"
+      })
+      // console.log("this is token => ", token);
+      
+      res.cookie("token",token, {
+        httpOnly: true,
         // if it is not production set secure false
         secure: false
       })
-      res.send({success: true})
-
+      res.send({seccess: true})
     })
+
     // api for jobs
-    app.get("/jobs", async (req, res) => {
+    app.get("/jobs", verifytoken, async (req, res) => {
       const email = req.query.email;
       // console.log("inside application cookies => ", req.cookies);
       const query = {};
@@ -110,11 +117,10 @@ async function run() {
       res.send(result);
     })
     // api for applications
-    app.get("/applications", verifyToken, async (req, res) => {
+    app.get("/applications", verifytoken, async (req, res) => {
       const email = req.query.email;
-      // console.log("inside application cookies => ", req.cookies);
       if(email !== req.decoded.email){
-        return res.status(422).send({message: "Validation error"})
+        return res.status(422).send({message: "validation error"})
       }
       const query = {
         applicant: email
