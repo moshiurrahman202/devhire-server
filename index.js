@@ -16,7 +16,7 @@ app.use(express.json());
 app.use(cookieParser())
 // fire base admin key
 const admin = require("firebase-admin");
-const serviceAccount = require("./firebase-admin-key.json");
+const serviceAccount = require("./firebaseAdminKey.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
