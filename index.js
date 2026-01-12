@@ -59,6 +59,13 @@ const verifyFirebaseToken = async (req, res, next) => {
   // req.decoded = userInfo;
   // next()
 }
+
+const verifayEmailToken = (req, res, next) => {
+  if(req.query.email !== req.decoded.email){
+    return res.status(403).send({message: "forbidden access"});
+  }
+  next()
+}
 const uri = `mongodb+srv://${process.env.DB_ADMIN}:${process.env.DB_PASS}@cluster0.ppjooy5.mongodb.net/?appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
