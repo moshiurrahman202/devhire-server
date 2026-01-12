@@ -1,6 +1,6 @@
 using http only cookies
 
-1 => from client side send the ingormation (email, detter: firebase auth token) to gemerate token
+1 => from client side send the information (email, detter: firebase auth token) to gemerate token
 2 => on the server side accept user information and if needed validate it 
 3 => generate token in the server side using secret and expiresIn(optional)
 
@@ -33,5 +33,16 @@ verifay token
 
 9 => check token exist, if not , return statsu 401 message unauthorized
 10 => jwt.verify , if err return status 403 message forbidden
-11 => if token valid set the decoded value to the req
+11 => if token valid, set the decoded value to the req
 12 => whene user want data by api => check user information to cookies decoded informations. if dosen't match return status 422 message Validation error or(any status any message depend on xyz)
+
+
+jwt using firebase
+
+1 => after user login, firevase is giving us access token
+2 => send or set token by cookies or header
+                ex => fetch("link", {
+                        headers: {
+                                authorization: `Bearer ${token}`
+                        }
+                })
