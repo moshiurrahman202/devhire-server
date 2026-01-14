@@ -101,9 +101,12 @@ async function run() {
     // })
 
     // api for jobs
-    app.get("/jobs",  async (req, res) => {
+    app.get("/jobs", verifyFirebaseToken, verifayEmailToken,  async (req, res) => {
       const email = req.query.email;
       // console.log("inside application cookies => ", req.cookies);
+      // if(email !== req.decoded.email) {
+      //   return res.status(403),send({message: "forbieedn access"})
+      // }
       const query = {};
       if (email) {
         query.hr_email = email;
@@ -152,12 +155,12 @@ async function run() {
     })
 
     // api for applications
-    app.get("/applications", verifyFirebaseToken,  async (req, res) => {
+    app.get("/applications", verifyFirebaseToken,verifayEmailToken, async (req, res) => {
       const email = req.query.email;
       // console.log("req header => ", req.headers);
-      if(email !== req.decoded.email){
-        return res.status(403).semd({ message: "forbidden access" })
-      }
+      // if(email !== req.decoded.email){
+      //   return res.status(403).semd({ message: "forbidden access" })
+      // }
       // if (email !== req.decoded.email) {
       //   return res.status(422).send({ message: "validation error" })
       // }
