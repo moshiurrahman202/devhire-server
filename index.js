@@ -101,7 +101,7 @@ async function run() {
     // })
 
     // api for jobs
-    app.get("/jobs", verifyFirebaseToken, verifayEmailToken,  async (req, res) => {
+    app.get("/jobs", async (req, res) => {
       const email = req.query.email;
       // console.log("inside application cookies => ", req.cookies);
       // if(email !== req.decoded.email) {
