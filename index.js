@@ -15,7 +15,7 @@ admin.initializeApp({
 });
 // middleware
 app.use(cors({
-  origin: ["http://localhost:5173"],
+  origin: ["https://devhire-d9081.web.app","http://localhost:5173"],
   credentials: true
 }));
 app.use(express.json());
