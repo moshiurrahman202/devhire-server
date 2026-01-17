@@ -6,7 +6,9 @@ const app = express();
 const port = process.env.port || 3000;
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const admin = require("firebase-admin");
-const serviceAccount = require("./firebaseAdminKey.json");
+const decoded = Buffer.from(process.env.FB_SERVICE-KEY, "base64").toString("utf8");
+
+const serviceAccount = JSON.parse(decoded);
 require('dotenv').config()
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
