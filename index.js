@@ -1,18 +1,22 @@
+require('dotenv').config();
 const express = require("express");
-const cors = require("cors")
+const cors = require("cors");
+const admin = require("firebase-admin");
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 // const jwt = require("jsonwebtoken");
 // const cookieParser = require("cookie-parser");
-const port = process.env.port || 3000;
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-const admin = require("firebase-admin");
+// const port = process.env.port || 3000;
+if (!process.env.FB_SERVICE_KEY) {
+  throw new Error("FB_SERVICE_KEY is missing");
+}
 const decoded = Buffer.from(process.env.FB_SERVICE_KEY, "base64").toString("utf8");
-
 const serviceAccount = JSON.parse(decoded);
-require('dotenv').config()
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+  });
+}
 // middleware
 app.use(cors({
   origin: ["https://devhire-d9081.web.app","http://localhost:5173"],
@@ -215,9 +219,10 @@ app.get("/", (req, res) => {
   res.send("devhire is cooking!💥")
 });
 
-app.listen(port, () => {
-  console.log("server running port on ", port);
+module.exports = app;
+// app.listen(port, () => {
+  // console.log("server running port on ", port);
   // const val = require("crypto").randomBytes(64).toString("hex");
   // console.log("bytes => ", val);
-})
+// })
 
