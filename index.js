@@ -220,9 +220,3 @@ app.get("/", (req, res) => {
 });
 
 module.exports = app;
-// app.listen(port, () => {
-  // console.log("server running port on ", port);
-  // const val = require("crypto").randomBytes(64).toString("hex");
-  // console.log("bytes => ", val);
-// })
-
