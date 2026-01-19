@@ -1,4 +1,5 @@
 node_modules
 .env
 firebaseAdminKey.json
+firebase-admin-key.json
 .vercel
