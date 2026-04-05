@@ -1,4 +1,5 @@
 require('dotenv').config();
+// const serverless = require("serverless-http");
 const express = require("express");
 const cors = require("cors");
 const admin = require("firebase-admin");
@@ -218,5 +219,8 @@ run().catch(console.dir);
 app.get("/", (req, res) => {
   res.send("devhire is cooking!💥")
 });
-
-module.exports = app;
+// module.exports = serverless(app);
+// module.exports = app;
+module.exports = (req, res) => {
+  app(req, res);
+};
