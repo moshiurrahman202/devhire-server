@@ -109,6 +109,7 @@ async function run() {
 
     // api for jobs
     app.get("/jobs", async (req, res) => {
+      console.log("jobs hit");
       const email = req.query.email;
       // console.log("inside application cookies => ", req.cookies);
       // if(email !== req.decoded.email) {
@@ -131,6 +132,7 @@ async function run() {
         })
       )
       res.send(jobsWithApplicationCount)
+      res.send("jobs working");
     })
 
     app.get("/jobs/:id", async (req, res) => {
@@ -220,7 +222,5 @@ app.get("/", (req, res) => {
   res.send("devhire is cooking!💥")
 });
 // module.exports = serverless(app);
-// module.exports = app;
-module.exports = (req, res) => {
-  app(req, res);
-};
+module.exports = app;
+
