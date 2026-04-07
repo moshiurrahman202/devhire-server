@@ -132,7 +132,6 @@ async function run() {
         })
       )
       res.send(jobsWithApplicationCount)
-      res.send("jobs working");
     })
 
     app.get("/jobs/:id", async (req, res) => {
