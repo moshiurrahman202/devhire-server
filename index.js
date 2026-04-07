@@ -109,7 +109,6 @@ async function run() {
 
     // api for jobs
     app.get("/jobs", async (req, res) => {
-      console.log("jobs hit");
       const email = req.query.email;
       // console.log("inside application cookies => ", req.cookies);
       // if(email !== req.decoded.email) {
@@ -221,5 +220,7 @@ app.get("/", (req, res) => {
   res.send("devhire is cooking!💥")
 });
 // module.exports = serverless(app);
-module.exports = app;
+// module.exports = app;
+const serverless = require("serverless-http");
+module.exports = serverless(app);
 
