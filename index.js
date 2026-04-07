@@ -220,7 +220,4 @@ app.get("/", (req, res) => {
   res.send("devhire is cooking!💥")
 });
 // module.exports = serverless(app);
-// module.exports = app;
-const serverless = require("serverless-http");
-module.exports = serverless(app);
-
+module.exports = app;
